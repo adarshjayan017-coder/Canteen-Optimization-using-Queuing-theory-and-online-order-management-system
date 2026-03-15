@@ -1,0 +1,49 @@
+{% extends "layout.html" %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin_style.css') }}">
+{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-dark bg-dark fixed-top shadow-sm py-3">
+    <div class="container justify-content-center">
+        <span class="navbar-brand mb-0 h1">Admin Panel</span>
+    </div>
+</nav>
+
+<div class="container mt-5 pt-5 mb-5 pb-5">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<nav class="navbar navbar-dark bg-dark fixed-bottom border-top border-secondary admin-nav-height">
+    <div class="container d-flex justify-content-around py-3">
+        
+        <a href="{{ url_for('menu.dashboard') }}" class="nav-icon-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+            <i class="fas fa-utensils fa-lg mb-1"></i>
+            <span class="d-block x-small-text">Menu</span>
+        </a>
+        
+        <a href="{{ url_for('orders.verify_token') }}" class="nav-icon-link {% if request.endpoint == 'verify_token' %}active{% endif %}">
+            <i class="fas fa-key fa-lg mb-1"></i>
+            <span class="d-block x-small-text">Token</span>
+        </a>
+        
+        <a href="{{ url_for('analytics.analytics_dashboard') }}" class="nav-icon-link {% if request.endpoint == 'analytics_dashboard' %}active{% endif %}">
+            <i class="fas fa-chart-bar fa-lg mb-1"></i>
+            <span class="d-block x-small-text">MRP</span>
+        </a>
+
+    </div>
+</nav>
+{% endblock %}

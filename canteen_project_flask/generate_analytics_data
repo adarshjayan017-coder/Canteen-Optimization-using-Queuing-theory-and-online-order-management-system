@@ -1,0 +1,121 @@
+import mysql.connector
+from datetime import datetime, timedelta
+import random
+
+def generate_high_volume_canteen_history():
+    try:
+        conn = mysql.connector.connect(
+            host="localhost", user="root", password="Pvkpvk@123", database="canteen_mgmt_system"
+        )
+        cursor = conn.cursor()
+        print("--- Connected! Generating High-Volume Sales History ---")
+
+        # 1. SETUP: 210 UNIQUE USERS
+        for i in range(1, 211):
+            role = 'admin' if i == 1 else 'student'
+            cursor.execute("""
+                INSERT IGNORE INTO users (user_id, username, email, password_hash, role) 
+                VALUES (%s, %s, %s, 'hash', %s)
+            """, (i, f'user_{i}', f'user{i}@ktu.edu', role))
+
+        # 2. SETUP: MENU WITH SPECIFIC PRICES
+        menu_items = [
+            (101, 'Masala Dosa', 50.00, 'Breakfast'), (102, 'Idily', 35.00, 'Breakfast'),
+            (103, 'Chappati w/ Kadala Curry', 40.00, 'Breakfast'), (104, 'Egg Curry', 25.00, 'Breakfast'),
+            (201, 'Biriyani', 70.00, 'Lunch'), (202, 'Meals', 30.00, 'Lunch'), 
+            (203, 'Chicken Curry/Fry', 50.00, 'Lunch'), (204, 'Fish Curry/Fry', 60.00, 'Lunch'),
+            (301, 'Pazham Pori', 15.00, 'Snacks'), (302, 'Samoosa', 12.00, 'Snacks'),
+            (303, 'Tea', 10.00, 'Snacks'), (304, 'Coffee', 12.00, 'Snacks'),
+            (305, 'Veg/Egg Puffs', 20.00, 'Snacks'), (306, 'Egg Sandwich', 30.00, 'Snacks')
+        ]
+        for item in menu_items:
+            cursor.execute("""
+                INSERT IGNORE INTO menu (item_id, item_name, price, category, stock_quantity, is_available, is_active) 
+                VALUES (%s, %s, %s, %s, 999, 1, 1)
+            """, item)
+        conn.commit()
+
+        # 3. KTU HOLIDAYS [cite: 3, 8, 11]
+        ktu_holidays = [
+            (7, 24), (8, 15), (8, 28), (8, 29), (8, 30), (8, 31),
+            (9, 1), (9, 2), (9, 3), (9, 4), (9, 5), (9, 6), (9, 7),
+            (9, 14), (9, 21), (10, 2), (10, 20),
+            (12, 20), (12, 21), (12, 22), (12, 23), (12, 24), (12, 25), (12, 26), (12, 27), (12, 28),
+            (1, 2), (1, 26), (2, 15)
+        ]
+
+        current_day = datetime(2025, 7, 1)
+        end_date = datetime(2026, 3, 14) 
+        total_orders = 0
+
+        while current_day <= end_date:
+            # Skip Weekends and KTU Holidays [cite: 25]
+            if current_day.weekday() < 5 and (current_day.month, current_day.day) not in ktu_holidays:
+                
+                # Daily breakdown to hit 150-200 Meals
+                meals_to_generate = random.randint(150, 200)
+                other_orders = random.randint(50, 80) # Breakfast + Snacks
+                
+                token_counter = 1 
+                
+                # Phase 1: High Volume Meals during Lunch (12 PM - 2 PM)
+                for _ in range(meals_to_generate):
+                    user_id = random.randint(1, 210)
+                    created_at = current_day.replace(hour=random.randint(12, 13), minute=random.randint(0, 59), second=random.randint(0, 59))
+                    
+                    price = 30.00 # Meals price
+                    qty = 1 # Usually 1 meal per student
+                    
+                    completed_at = created_at + timedelta(minutes=random.randint(5, 15))
+                    expiry_time = created_at + timedelta(hours=1)
+
+                    cursor.execute("""
+                        INSERT INTO orders (user_id, total_amount, payment_method, payment_status, order_type, status, created_at, completed_at, token_number, expiry_time) 
+                        VALUES (%s, %s, 'upi', 'completed', 'dine_in', 'delivered', %s, %s, %s, %s)
+                    """, (user_id, price * qty, created_at, completed_at, token_counter, expiry_time))
+                    
+                    cursor.execute("INSERT INTO order_items (order_id, item_id, quantity, price_at_sale) VALUES (%s, 202, %s, %s)", (cursor.lastrowid, qty, price))
+                    token_counter += 1
+                    total_orders += 1
+
+                # Phase 2: Other Items (Breakfast & Snacks)
+                for _ in range(other_orders):
+                    user_id = random.randint(1, 210)
+                    hour = random.choice([9, 10, 11, 14, 15]) # Morning or Afternoon
+                    created_at = current_day.replace(hour=hour, minute=random.randint(0, 59), second=random.randint(0, 59))
+                    
+                    if hour <= 11:
+                        item_id = random.choice([101, 102, 103, 104, 303, 304])
+                    else:
+                        item_id = random.choice([301, 302, 303, 304, 305, 306])
+
+                    price = next(x[2] for x in menu_items if x[0] == item_id)
+                    qty = random.randint(1, 2)
+                    
+                    completed_at = created_at + timedelta(minutes=random.randint(5, 15))
+                    expiry_time = created_at + timedelta(hours=1)
+
+                    cursor.execute("""
+                        INSERT INTO orders (user_id, total_amount, payment_method, payment_status, order_type, status, created_at, completed_at, token_number, expiry_time) 
+                        VALUES (%s, %s, 'upi', 'completed', 'dine_in', 'delivered', %s, %s, %s, %s)
+                    """, (user_id, price * qty, created_at, completed_at, token_counter, expiry_time))
+                    
+                    cursor.execute("INSERT INTO order_items (order_id, item_id, quantity, price_at_sale) VALUES (%s, %s, %s, %s)", (cursor.lastrowid, item_id, qty, price))
+                    token_counter += 1
+                    total_orders += 1
+                
+                conn.commit()
+                print(f"Processed {current_day.date()} | Total: {total_orders}", end='\r')
+
+            current_day += timedelta(days=1)
+
+        print(f"\nSUCCESS! Generated {total_orders} orders. Meals: ~150-200/day.")
+
+    except mysql.connector.Error as err:
+        print(f"\nError: {err}")
+    finally:
+        if 'conn' in locals() and conn.is_connected():
+            cursor.close(); conn.close()
+
+if __name__ == "__main__":
+    generate_high_volume_canteen_history()

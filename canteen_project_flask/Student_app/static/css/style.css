@@ -1,0 +1,101 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding-bottom: 70px; /* Space for bottom nav */
+}
+
+.card {
+    transition: transform 0.2s;
+}
+
+.card:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    border: none;
+}
+
+.nav-link i {
+    font-size: 1.2rem;
+    margin-bottom: 2px;
+}
+
+.badge {
+    font-size: 0.65rem;
+}
+
+/* Auth Pages Background */
+.auth-body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Glassmorphism Card */
+.auth-card {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-card h2 {
+    font-weight: 700;
+    color: #2575fc;
+    margin-bottom: 1.5rem;
+}
+
+.form-control {
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #e0e0e0;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.2);
+    border-color: #2575fc;
+}
+
+.btn-auth {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    border: none;
+    border-radius: 10px;
+    padding: 0.75rem;
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+
+.btn-auth:active {
+    transform: scale(0.98);
+}
+
+
+
+
+/* Cart-specific styles */
+.card-footer {
+    font-size: 0.9rem;
+}
+
+.bg-primary {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%) !important;
+}
+
+.btn-light {
+    color: #6a11cb;
+}
+
+.rounded-4 {
+    border-radius: 1.25rem !important;
+}
+
+/* Quantity controls animation */
+.qty-btn:active {
+    transform: scale(0.9);
+}

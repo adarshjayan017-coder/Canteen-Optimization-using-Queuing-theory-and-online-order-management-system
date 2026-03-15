@@ -1,0 +1,123 @@
+{% extends "base_user.html" %}
+
+{% block content %}
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0">
+            <i class="fas fa-shopping-basket me-2"></i>Review Order
+        </h4>
+        
+        {% if cart_items %}
+        <a href="{{ url_for('menu.clear_cart') }}" 
+           class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-bold">
+            <i class="fas fa-trash-alt me-1"></i> Clear cart
+        </a>
+        {% endif %}
+    </div>
+
+    {% if not cart_items %}
+    <div class="text-center py-5">
+        <i class="fas fa-cart-arrow-down fa-3x text-muted mb-3"></i>
+        <p class="text-muted">Your cart is feeling light...</p>
+        <a href="{{ url_for('menu.menu_page') }}" class="btn btn-primary rounded-pill px-4">Browse Menu</a>
+    </div>
+    {% else %}
+    
+    <div class="row g-3 mb-5">
+        {% for item in cart_items %}
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-0 fw-bold">{{ item.item_name }}</h6>
+                        <small class="text-primary">₹{{ item.price }} per unit</small>
+                    </div>
+                    
+                    <div class="d-flex align-items-center bg-light rounded-pill px-2 py-1">
+                        <a href="{{ url_for('menu.remove_from_cart', item_id=item.item_id) }}" class="btn btn-sm btn-light rounded-circle text-danger">
+                            <i class="fas fa-minus"></i>
+                        </a>
+                        <span class="mx-3 fw-bold">{{ item.qty }}</span>
+                        <a href="{{ url_for('menu.add_to_cart', item_id=item.item_id) }}" class="btn btn-sm btn-light rounded-circle text-primary">
+                            <i class="fas fa-plus"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0 pt-0 text-end">
+                    <small class="text-muted">Subtotal: </small>
+                    <span class="fw-bold">₹{{ item.subtotal }}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="card border-0 shadow rounded-4 p-3 bg-primary text-white mb-5">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <p class="mb-0 small opacity-75">Grand Total</p>
+                <h2 class="mb-0">₹{{ total }}</h2>
+            </div>
+            <button class="btn btn-light btn-lg rounded-pill fw-bold px-4 shadow" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#confirmOrderModal">
+                Place Order <i class="fas fa-chevron-right ms-2"></i>
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<div class="modal fade" id="confirmOrderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header bg-dark text-white rounded-top-4 border-0">
+                <h5 class="modal-title fw-bold">Confirm Your Order</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <div class="mb-3">
+                    <i class="fas fa-utensils fa-3x text-primary mb-3"></i>
+                    <h5 class="fw-bold">Ready to eat?</h5>
+                    <p class="text-muted">Your order will be sent to the canteen. Please check your items carefully.</p>
+                </div>
+                
+                <div class="bg-light rounded-4 p-4 mb-4 text-start text-dark">
+                    <h6 class="fw-bold mb-3 border-bottom pb-2">Order Summary</h6>
+                    
+                    <div class="mb-3" style="max-height: 200px; overflow-y: auto;">
+                        {% for item in cart_items %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div>
+                                <span class="fw-bold text-dark">{{ item.item_name }}</span>
+                                <small class="text-muted d-block">Qty: {{ item.qty }}</small>
+                            </div>
+                            <span class="fw-bold text-secondary">₹{{ item.subtotal }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="d-flex justify-content-between mb-1">
+                        <span class="text-muted">Total Items:</span>
+                        <span class="fw-bold text-dark">{{ cart_count }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between fs-5 text-primary pt-2">
+                        <span class="fw-bold">Total Payable:</span>
+                        <span class="fw-bold">₹{{ total }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Go Back</button>
+                <form action="{{ url_for('order.place_order') }}" method="POST" class="m-0">
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold">
+                        Confirm & Pay
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

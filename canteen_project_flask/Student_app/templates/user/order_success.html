@@ -1,0 +1,31 @@
+{% extends "base_user.html" %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <div class="mb-4">
+        <div class="display-1 text-success mb-3">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2 class="fw-bold">Order Placed!</h2>
+        <p class="text-muted">Your delicious meal is being prepared in the kitchen.</p>
+    </div>
+
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4 mx-auto" style="max-width: 400px;">
+        <div class="bg-primary text-white py-3">
+            <h6 class="text-uppercase mb-0 opacity-75">Your Token Number</h6>
+        </div>
+        <div class="card-body py-5">
+            <h1 class="display-3 fw-bold mb-0 text-primary">#{{ order_id }}</h1>
+        </div>
+        <div class="card-footer bg-light border-0 py-3">
+            <small class="text-muted">Show this token at the canteen counter</small>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 col-md-6 mx-auto">
+        <a href="{{ url_for('menu.menu_page') }}" class="btn btn-outline-primary rounded-pill fw-bold py-3">
+            Order Something Else
+        </a>
+    </div>
+</div>
+{% endblock %}

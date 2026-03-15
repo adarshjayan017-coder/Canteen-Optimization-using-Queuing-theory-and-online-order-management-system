@@ -1,0 +1,72 @@
+/* Fix for Modal Overlays */
+.modal-backdrop {
+    background-color: rgba(7, 62, 246, 0.5) !important;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    z-index: 1100;
+}
+
+/* Row Styling for Hidden Items */
+.opacity-50 {
+    opacity: 0.5;
+    background-color: #f8f9fa !important;
+}
+
+/* Bottom Nav Visuals */
+.navbar.fixed-bottom {
+    height: 50px;
+    background-color: #101027 !important;
+}
+.nav-icon-link {
+    color: #ffffff !important;
+    opacity: 0.6;
+}
+.nav-icon-link.active {
+    opacity: 1;
+    color: #0d6efd !important;
+}
+/* Floating Flash Messages */
+.alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000; /* Stays above everything, even modals */
+    min-width: 250px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border: none;
+    border-radius: 8px;
+}
+
+
+
+/* Custom Height for Bottom Nav */
+.admin-nav-height {
+    min-height: 65px; /* Slightly taller than standard */
+}
+
+.nav-icon-link {
+    color: #8a8d90; 
+    text-decoration: none;
+    text-align: center;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Engineering Blue for Active State */
+.nav-icon-link.active {
+    color: #3498db !important;
+    transform: translateY(-3px); /* Subtle lift effect */
+}
+
+.x-small-text {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Ensure icons remain clear */
+.nav-icon-link i {
+    display: block;
+}

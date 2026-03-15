@@ -1,0 +1,111 @@
+{% extends "base_admin.html" %}
+{% block content %}
+<div class="container py-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold"><i class="fas fa-chart-line text-primary me-2"></i>MRP Dashboard</h3>
+        {% if data %}
+        <span class="badge bg-primary rounded-pill px-3 py-2 shadow-sm">
+            Target Date: {{ data[0].target_date_str }}
+        </span>
+        {% endif %}
+    </div>
+
+    {% if error %}
+    <div class="alert alert-soft-warning border-0 shadow-sm rounded-4 mb-4">
+        <i class="fas fa-info-circle me-2"></i> {{ error }}
+    </div>
+    {% endif %}
+
+    {% if data %}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Menu Item</th>
+                        <th>Forecasted Qty</th>
+                        <th>Model Reliability</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                    <tr>
+                        <td class="ps-4 fw-bold text-dark">{{ item.name }}</td>
+                        <td><span class="badge bg-primary py-2 px-3 fs-6">{{ item.tomorrow_qty }} units</span></td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="progress rounded-pill flex-grow-1 me-2" style="height: 6px; max-width: 100px;">
+                                    <div class="progress-bar bg-success" style="width: {{ item.accuracy }}%"></div>
+                                </div>
+                                <small class="text-muted fw-bold">{{ item.accuracy }}%</small>
+                            </div>
+                        </td>
+                        <td>
+                            {% if item.tomorrow_qty > 40 %}<span class="text-danger small fw-bold">High Demand</span>
+                            {% else %}<span class="text-success small fw-bold">Normal Load</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-4">
+        <h5 class="fw-bold mb-4 text-secondary">Historical vs. Forecasted Demand</h5>
+        <div style="height: 350px;">
+            <canvas id="mrpLineChart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('mrpLineChart').getContext('2d');
+        
+        // FIX: Use full dates on X-axis for chronological authenticity
+        const labels = [
+            {% for d in data[0].history_data %}"{{ d.ds.strftime('%d %b') }}",{% endfor %} 
+            {% for d in data[0].forecast_data %}"{{ d.ds.strftime('%d %b') }} (F)",{% endfor %}
+        ];
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {% for item in data %}
+                    {
+                        label: '{{ item.name }}',
+                        data: [
+                            {% for d in item.history_data %}{{ d.y }},{% endfor %}
+                            {% for d in item.forecast_data %}{{ d.yhat }},{% endfor %}
+                        ],
+                        borderColor: 'hsl({{ loop.index0 * 90 }}, 70%, 50%)',
+                        fill: false,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 4
+                    },
+                    {% endfor %}
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+                scales: { 
+                    y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-database fa-3x text-light mb-3"></i>
+        <p class="text-muted">Insufficient data to generate an authentic forecast.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
